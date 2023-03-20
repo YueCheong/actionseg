@@ -251,18 +251,18 @@ def main(args):
         # update_dict = {k: v for k, v in pre_state.items() if k.startswith("tube_embedding.") or k.startswith("transformer1.") or k.startswith("transformer2.") or k.startswith("pos")}  
         for name in update_dict.keys():
             print(name)
-        net_state_dict = model.state_dict()
+        net_state_dict = model1.state_dict()
         # for name in net_state_dict.keys():
         #     print(name)
         net_state_dict.update(update_dict)
-        model.load_state_dict(net_state_dict)
+        model1.load_state_dict(net_state_dict)
         # print(pre_state['transformer1.layers.1.0.fn.fn.to_qkv.weight'])
         # print(model.state_dict()['transformer1.layers.1.0.fn.fn.to_qkv.weight'])
 
     criterion = nn.CrossEntropyLoss()
 
     lr = args.lr
-    optimizer = torch.optim.SGD(model.parameters(), lr=lr, momentum=args.momentum, weight_decay=args.weight_decay)
+    optimizer = torch.optim.SGD(model1.parameters(), lr=lr, momentum=args.momentum, weight_decay=args.weight_decay)
 
     # convert scheduler to be per iteration, not per epoch, for warmup that lasts
     # between different epochs
@@ -276,63 +276,11 @@ def main(args):
     start_time = time.time()
     acc = 0
     for epoch in range(args.start_epoch, args.epochs):
-        train_one_epoch(model, criterion, optimizer, lr_scheduler, data_loader, device, epoch, args.print_freq)
+        train_one_epoch(model1, criterion, optimizer, lr_scheduler, data_loader, device, epoch, args.print_freq)
         # acc = max(acc, evaluate(model, criterion, data_loader_test, device, len(dataset_test)))
     end_time  = time.time()
     print("total training time", end_time-start_time)
 
-
-    print("Creating model1")
-
-    Model1 = getattr(P4Models, args.model1)
-    model1 = Model1(radius=args.radius, nsamples=args.nsamples, spatial_stride=args.spatial_stride,
-                  temporal_kernel_size=args.temporal_kernel_size, temporal_stride=args.temporal_stride,
-                  emb_relu=args.emb_relu,
-                  dim=args.dim, depth=args.depth, heads=args.heads, dim_head=args.dim_head,
-                  mlp_dim=args.mlp_dim, num_classes=19)
-
-    if torch.cuda.device_count() > 1:
-        model1 = nn.DataParallel(model1)
-    model1.to(device)
-
-    if args.resume:
-        checkpoint = torch.load(args.resume, map_location='cpu')
-        pre_state = checkpoint['model1'] 
-        # for name in pre_state.keys():
-        #     print(name)
-        update_dict = {k: v for k, v in pre_state.items() if k.startswith("module.tube_embedding.") or k.startswith("module.transformer1.") or k.startswith("module.pos")}
-        # update_dict = {k: v for k, v in pre_state.items() if k.startswith("tube_embedding.") or k.startswith("transformer1.") or k.startswith("transformer2.") or k.startswith("pos")}  
-        for name in update_dict.keys():
-            print(name)
-        net_state_dict = model.state_dict()
-        # for name in net_state_dict.keys():
-        #     print(name)
-        net_state_dict.update(update_dict)
-        model.load_state_dict(net_state_dict)
-        # print(pre_state['transformer1.layers.1.0.fn.fn.to_qkv.weight'])
-        # print(model.state_dict()['transformer1.layers.1.0.fn.fn.to_qkv.weight'])
-
-    criterion = nn.CrossEntropyLoss()
-
-    lr = args.lr
-    optimizer = torch.optim.SGD(model.parameters(), lr=lr, momentum=args.momentum, weight_decay=args.weight_decay)
-
-    # convert scheduler to be per iteration, not per epoch, for warmup that lasts
-    # between different epochs
-    warmup_iters = args.lr_warmup_epochs * len(data_loader)
-    lr_milestones = [len(data_loader) * m for m in args.lr_milestones]
-    lr_scheduler = WarmupMultiStepLR(optimizer, milestones=lr_milestones, gamma=args.lr_gamma, warmup_iters=warmup_iters, warmup_factor=1e-5)
-
-    # model_without_ddp = model
-
-    print("Start training")
-    start_time = time.time()
-    acc = 0
-    for epoch in range(args.start_epoch, args.epochs):
-        train_one_epoch(model, criterion, optimizer, lr_scheduler, data_loader, device, epoch, args.print_freq)
-        # acc = max(acc, evaluate(model, criterion, data_loader_test, device, len(dataset_test)))
-    end_time  = time.time()
-    print("total training time", end_time-start_time)
 
 
     print("Creating model2")
@@ -344,12 +292,12 @@ def main(args):
                   mlp_dim=args.mlp_dim, num_classes=19)
 
     if torch.cuda.device_count() > 1:
-        model = nn.DataParallel(model)
-    model.to(device)
+        model2 = nn.DataParallel(model2)
+    model2.to(device)
 
     if args.resume:
         checkpoint = torch.load(args.resume, map_location='cpu')
-        pre_state = checkpoint['model'] 
+        pre_state = checkpoint['model2'] 
         # for name in pre_state.keys():
         #     print(name)
         # update_dict = {k.replace('_encoder',''): v for k, v in pre_state.items() if k.startswith("tube_embedding.") or k.startswith("transformer1.") or k.startswith("transformer2.") or k.startswith("pos_embedding_encoder")} 
@@ -358,18 +306,18 @@ def main(args):
         # update_dict = {k: v for k, v in pre_state.items() if k.startswith("tube_embedding.") or k.startswith("transformer1.") or k.startswith("transformer2.") or k.startswith("pos")}  
         for name in update_dict.keys():
             print(name)
-        net_state_dict = model.state_dict()
+        net_state_dict = model2.state_dict()
         # for name in net_state_dict.keys():
         #     print(name)
         net_state_dict.update(update_dict)
-        model.load_state_dict(net_state_dict)
+        model2.load_state_dict(net_state_dict)
         # print(pre_state['transformer1.layers.1.0.fn.fn.to_qkv.weight'])
         # print(model.state_dict()['transformer1.layers.1.0.fn.fn.to_qkv.weight'])
 
     criterion = nn.CrossEntropyLoss()
 
     lr = args.lr
-    optimizer = torch.optim.SGD(model.parameters(), lr=lr, momentum=args.momentum, weight_decay=args.weight_decay)
+    optimizer = torch.optim.SGD(model2.parameters(), lr=lr, momentum=args.momentum, weight_decay=args.weight_decay)
 
     # convert scheduler to be per iteration, not per epoch, for warmup that lasts
     # between different epochs
@@ -381,13 +329,13 @@ def main(args):
 
     print("Start training")
     start_time = time.time()
-    acc = 0
+    # acc = 0
     for epoch in range(args.start_epoch, args.epochs):
-        train_one_epoch(model, criterion, optimizer, lr_scheduler, data_loader, device, epoch, args.print_freq)
+        train_one_epoch(model2, criterion, optimizer, lr_scheduler, data_loader, device, epoch, args.print_freq)
         if (epoch+1) % 5 == 0:
             if args.output_dir:
                     checkpoint = {
-                        'model': model.state_dict(),
+                        'model': model2.state_dict(),
                         'optimizer': optimizer.state_dict(),
                         'lr_scheduler': lr_scheduler.state_dict(),
                         'epoch': epoch,
@@ -396,4 +344,54 @@ def main(args):
                         checkpoint,
                         os.path.join(args.output_dir, 'model_{}.pth'.format(epoch)))
 
-        acc = max(acc, evaluate(model, criterion, data_loader_test, device, len(dataset_test)))
+        # acc = max(acc, evaluate(model2, criterion, data_loader_test, device, len(dataset_test)))
+    end_time  = time.time()
+    print("total training time", end_time - start_time)
+    acc = max(acc, evaluate(model1, model2, criterion, data_loader_test, device, len(dataset_test)))
+
+
+def parse_args():
+    import argparse
+    parser = argparse.ArgumentParser(description='P4Transformer Model Training')
+
+    parser.add_argument('--seed', default=803, type=int, help='random seed')
+    parser.add_argument('--model1', default='P4Transformer', type=str, help='model1')
+    parser.add_argument('--model2', default='PrimitiveTransformer', type=str, help='model2')
+    # P4D
+    parser.add_argument('--radius', default=0.9, type=float, help='radius for the ball query')
+    parser.add_argument('--nsamples', default=32, type=int, help='number of neighbors for the ball query')
+    parser.add_argument('--spatial-stride', default=32, type=int, help='spatial subsampling rate')
+    parser.add_argument('--temporal-kernel-size', default=3, type=int, help='temporal kernel size')
+    parser.add_argument('--temporal-stride', default=1, type=int, help='temporal stride')
+    # embedding
+    parser.add_argument('--emb-relu', default=False, action='store_true')
+    # transformer
+    parser.add_argument('--dim', default=2048, type=int, help='transformer dim')
+    parser.add_argument('--depth', default=5, type=int, help='transformer depth')
+    parser.add_argument('--heads', default=8, type=int, help='transformer head')
+    parser.add_argument('--dim-head', default=128, type=int, help='transformer dim for each head')
+    parser.add_argument('--mlp-dim', default=1024, type=int, help='transformer mlp dim')
+    # training
+    parser.add_argument('-b', '--batch-size', default=8, type=int)
+    parser.add_argument('--epochs', default=50, type=int, metavar='N', help='number of total epochs to run')
+    parser.add_argument('-j', '--workers', default=10, type=int, metavar='N', help='number of data loading workers (default: 16)')
+    parser.add_argument('--lr', default=0.05, type=float, help='initial learning rate')
+    parser.add_argument('--momentum', default=0.9, type=float, metavar='M', help='momentum')
+    parser.add_argument('--wd', '--weight-decay', default=1e-4, type=float, metavar='W', help='weight decay (default: 1e-4)', dest='weight_decay')
+    parser.add_argument('--lr-milestones', nargs='+', default=[20, 35], type=int, help='decrease lr on milestones')
+    parser.add_argument('--lr-gamma', default=0.5, type=float, help='decrease lr by a factor of lr-gamma')
+    parser.add_argument('--lr-warmup-epochs', default=5, type=int, help='number of warmup epochs')
+    # output
+    parser.add_argument('--print-freq', default=20, type=int, help='print frequency')
+    parser.add_argument('--output-dir', default='', type=str, help='path where to save')
+    # resume
+    parser.add_argument('--resume', default='', help='resume from checkpoint')
+    parser.add_argument('--start-epoch', default=0, type=int, metavar='N', help='start epoch')
+
+    args = parser.parse_args()
+
+    return args
+
+if __name__ == "__main__":
+    args = parse_args()
+    main(args)
