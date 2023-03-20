@@ -76,5 +76,6 @@ class SegDataset(Dataset):
 
 
 if __name__ == '__main__':
-    datasets = SegDataset(root='/share/datasets/AS_data_base_h5', train=False)
+    datasets = SegDataset(root='/temp/liuf/hoi4d/action_seg', train=False)
+    # datasets = SegDataset(root='/share/datasets/AS_data_base_h5', train=False)
 

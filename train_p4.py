@@ -147,6 +147,8 @@ def evaluate(model, criterion, data_loader, device, len_test):
             loss = criterion(output.permute(0,2,1), target)
 
             output = torch.max(output,dim=-1)[1]
+            print('output.shape',output.shape)
+            np.save('p4_pred.npy',output)
             output, target = output.cpu().numpy().astype(np.int32), target.cpu().numpy().astype(np.int32)
             acc = np.mean(output == target)
             # acc = torch.mean(torch.tensor(output==target,dtype=torch.float))
