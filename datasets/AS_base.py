@@ -35,7 +35,7 @@ class SegDataset(Dataset):
                     self.center.append(np.array(f['center']))
                     self.label.append(np.array(f['label']))
         else:
-            for filename in ['test1.h5', 'test2.h5']:
+            for filename in ['test1.h5', 'test2.h5']: #test_wolabel.h5
                 print(filename)
                 with h5py.File(root+'/'+filename,'r') as f:
                     self.pcd.append(np.array(f['pcd']))

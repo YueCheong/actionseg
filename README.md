@@ -19,7 +19,7 @@ pip install .
 ## Usage
 You can reproduce the result of PPTr or P4Transformer using:
 ```
-python train_pptr.py --output-dir ./output
+python train_pptr.py --output-dir ./output/pptr_log
 python train_p4.py --output-dir ./output
 ```
 ## Citation
