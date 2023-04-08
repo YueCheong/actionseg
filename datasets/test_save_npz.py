@@ -22,7 +22,7 @@ camera_param4  = np.load(dir_camera_param+"ZY20210800004/intrin.npy")
 print(camera_param4.shape)
 print(camera_param4)
 
-CAM_WID, CAM_HGT = 640, 480 #重新投影到深度图尺寸宽*高
+CAM_WID, CAM_HGT = 1024, 768 #重新投影到深度图尺寸宽*高
 CAM_FX1, CAM_FY1 = camera_param1[0][0], camera_param1[1][1]
 CAM_CX1, CAM_CY1 = camera_param1[0][2], camera_param1[1][2]
 
