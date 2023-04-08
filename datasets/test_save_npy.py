@@ -76,7 +76,7 @@ print(label)   #(b, l) = (2971, 150)
 dir_save = "/temp/liuf/hoi4d/action_depth_npy/"
 
 for clips in range(len(pc)): # 2971
-    IMG=[]
+    clip_imgs=[]
     tmp=[]
     for frames in range(len(pc[0])): #150
         frame = pc[clips, frames, :, :]
