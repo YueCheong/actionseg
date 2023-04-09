@@ -3,8 +3,8 @@ import numpy as np
 # import os
 # import datetime
 
-
-data = np.load('/home/dh/alisa/temp/actiondepth/test_depth_npy/depth_clip0.npy')
+dir_save = "/temp/liuf/hoi4d/action_depth_npy/"
+data = np.load(dir_save + "depth_clip2.npy")
 print(type(data))
 print(data.shape)
 print(data)
